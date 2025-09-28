@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    PACKER_LOG: 1
+    AWS_REGION: "us-east-1"
+
+phases:
+  install:
+    runtime-versions:
+      golang: latest
+    commands:
+      - echo "Installing Packer..."
+      - curl -fsSL https://releases.hashicorp.com/packer/1.11.2/packer_1.11.2_linux_amd64.zip -o packer.zip
+      - unzip packer.zip -d /usr/local/bin
+      - packer --version
+
+  pre_build:
+    commands:
+      - echo "Validating Packer template..."
+      - packer init .
+      - packer validate packer.pkr.hcl
+
+  build:
+    commands:
+      - echo "Building AMI with Packer..."
+      - packer build packer.pkr.hcl
+
+artifacts:
+  files:
+    - "**/*"
+  discard-paths: yes
